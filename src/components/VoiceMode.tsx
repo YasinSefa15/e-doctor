@@ -1,5 +1,4 @@
 import { Mic, ArrowLeft } from 'lucide-react';
-import { Language } from '../types';
 import { t } from '../i18n/translations';
 import { Language, Message } from '../types';
 import { t } from '../i18n/translations';
