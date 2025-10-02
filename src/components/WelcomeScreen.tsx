@@ -1,7 +1,7 @@
 import { Languages, Heart } from 'lucide-react';
 import { Language } from '../types';
 import { t } from '../i18n/translations';
-import Devlet from '.../../edevlet.svg' 
+import Devlet from '.../../../edevlet.svg' 
 
 interface WelcomeScreenProps {
   language: Language;
