@@ -27,7 +27,8 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
   const [recordingTimer, setRecordingTimer] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [chatHistory, setChatHistory] = useState([])
+  
   const { recordingState, startRecording, stopRecording, error: recordingError } = useAudioRecorder();
 
   const scrollToBottom = () => {
@@ -92,12 +93,17 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
       const userMessage: Message = {
         id: Date.now().toString(),
         role: 'user',
-        content: transcribedText.trim(),
+        text: transcribedText.trim(),
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, userMessage]);
 
-      const aiResponseText = await generateAIResponse(transcribedText.trim(), language);
+       chatHistory.push({
+        role: 'user',
+        parts: [{text : userMessage.text}],
+      });
+
+      const aiResponseText = await generateAIResponse(chatHistory, language);
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -278,7 +284,7 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
                         : 'bg-white text-gray-900 rounded-tl-none border border-gray-200'
                     }`}
                   >
-                    <p className="text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-lg leading-relaxed whitespace-pre-wrap">{message.content || message.text}</p>
                   </div>
                   <p className="text-xs text-gray-500 mt-2 px-2">
                     {message.timestamp.toLocaleTimeString(language === 'tr' ? 'tr-TR' : 'en-US', {
