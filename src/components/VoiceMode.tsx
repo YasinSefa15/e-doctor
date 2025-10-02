@@ -79,7 +79,8 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
   const handleMicrophoneClick = async () => {
     if (recordingState === 'idle' && !isProcessing) {
       await startRecording();
-
+resetSilenceTimer();
+      
       setTimeout(async () => {
         if (recordingState === 'recording') {
           await handleStopRecording();
