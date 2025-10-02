@@ -90,7 +90,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col animate-fadeIn">
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col animate-fadeIn">
       <div className="sticky top-0 bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -189,7 +189,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
         
       </div>
 
-      <div className="border-t border-gray-200 bg-white shadow-lg">
+      <div className="fixed bottom-0 border-t border-gray-200 bg-white shadow-lg">
           <div className="px-8 py-6">
             <div className="flex gap-4 max-w-5xl mx-auto">
               <input
