@@ -130,7 +130,7 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col animate-fadeIn">
+    <div className="h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col animate-fadeIn">
       <div className="sticky top-0 bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
