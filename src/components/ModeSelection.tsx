@@ -45,9 +45,7 @@ export default function ModeSelection({ language, onSelectMode, onBack }: ModeSe
             className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 p-12 hover:scale-105 active:scale-95 border-2 border-transparent hover:border-green-500 animate-slideUp relative "
             style={{ animationDelay: '200ms' }}
           >
-            <div className="absolute top-6 right-6 bg-amber-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-              {t('comingSoon', language)}
-            </div>
+      
             <div className="flex flex-col items-center text-center">
               <div className="mb-8 relative">
                 <Mic className="w-32 h-32 text-green-600 group-hover:scale-110 transition-transform duration-300" />
