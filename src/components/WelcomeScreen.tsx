@@ -70,7 +70,7 @@ export default function WelcomeScreen({ language, onLanguageChange, onStartSessi
           className="group px-16 py-6 bg-gradient-to-r from-red-600 to-red-700 text-white text-2xl font-semibold rounded-2xl shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
         >
           <span className="flex items-center gap-3">
-
+            {eDevlet}
             {t('startSession', language)}
             <svg className="w-8 h-8 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
