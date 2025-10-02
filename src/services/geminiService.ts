@@ -10,6 +10,7 @@ if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
 const genAI = API_KEY && API_KEY !== 'your_gemini_api_key_here'
   ? new GoogleGenerativeAI(API_KEY)
   : null;
+
 const SYSTEM_PROMPTS = {
   tr: `Sen e-Doktor adında tıbbi bir yapay zeka asistanısın. Hastane ortamında triyajdan geçmiş hastalarla birebir görüşme yaparak onlara değerlendirme, genel sağlık bilgisi ve yönlendirme sağlıyorsun. Ayrıca sana atılan kan değerleri gibi raporları da yorumlayabiliyorsun. Unutma sen hastanede bir doktor gibi çalışıyorsun ir odada.
 
@@ -46,7 +47,8 @@ Important Rules:
 
 Your goal is to diagnose simple illnesses, prescribe basic medications, and interpret patient reports. If the illness seems more serious, or the medication required is not simple, direct the patient to a doctor or polyclinic.`
 };
-export async function generateAIResponse(userMessage: string, language: Language): Promise<string> {
+
+export async function generateAIResponse(chatHistory: any, language: Language): Promise<string> {
   if (!genAI) {
     return language === 'tr'
       ? 'API anahtarı yapılandırılmamış. Lütfen .env dosyanıza VITE_GEMINI_API_KEY ekleyin.'
@@ -59,7 +61,9 @@ export async function generateAIResponse(userMessage: string, language: Language
       systemInstruction: SYSTEM_PROMPTS[language]
     });
 
-    const result = await model.generateContent(userMessage);
+    const result = await model.generateContent({
+      contents: chatHistory,
+    });
     const response = result.response;
     const text = response.text();
 
