@@ -66,7 +66,7 @@ export default function WelcomeScreen({ language, onLanguageChange, onStartSessi
 
         <button
           onClick={onStartSession}
-          className="group px-16 py-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-2xl font-semibold rounded-2xl shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
+          className="group px-16 py-6 bg-gradient-to-r from-red-600 to-red-700 text-white text-2xl font-semibold rounded-2xl shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
         >
           <span className="flex items-center gap-3">
             {t('startSession', language)}
