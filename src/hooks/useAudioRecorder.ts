@@ -22,77 +22,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-
-  const checkSilence = () => {
-    if (!analyserRef.current || !dataArrayRef.current) return;
-
-    analyserRef.current.getByteTimeDomainData(dataArrayRef.current);
-
-    // Calculate average volume
-    const avg = dataArrayRef.current.reduce((sum, val) => sum + Math.abs(val - 128), 0) / dataArrayRef.current.length;
-
-    // Ses eşiği (threshold), küçükse sessizlik kabul edilir
-    const SILENCE_THRESHOLD = 5;
-
-    if (avg < SILENCE_THRESHOLD) {
-      // Sessizlik varsa zamanlayıcıyı başlat
-      if (!silenceTimeoutRef.current) {
-        silenceTimeoutRef.current = setTimeout(() => {
-          if (mediaRecorderRef.current?.state === 'recording') {
-            stopRecording();
-          }
-        }, 3000); // 3 saniye sessizlik
-      }
-    } else {
-      // Ses varsa zamanlayıcıyı sıfırla
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = null;
-      }
-    }
-
-    requestAnimationFrame(checkSilence);
-  };
-
-  const startRecording = useCallback(async () => {
-    try {
-      setError(null);
-      audioChunksRef.current = [];
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm',
-      });
-
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      // Silence detection setup
-      audioContextRef.current = new AudioContext();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      sourceRef.current = audioContextRef.current.createMediaStreamSource(stream);
-      sourceRef.current.connect(analyserRef.current);
-      analyserRef.current.fftSize = 2048;
-      const bufferLength = analyserRef.current.fftSize;
-      dataArrayRef.current = new Uint8Array(bufferLength);
-
-      checkSilence(); // Başlat
-
-      mediaRecorder.start();
-      setRecordingState('recording');
-    } catch (err) {
-      console.error('Error starting recording:', err);
-      setError('Mikrofona erişim izni gerekli / Microphone access required');
-      setRecordingState('idle');
-    }
-  }, []);
+  const rafIdRef = useRef<number | null>(null);
 
   const stopRecording = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
@@ -103,10 +33,15 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
         return;
       }
 
-      // 🔇 Temizleme işlemleri
+      // Temizlik
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
         silenceTimeoutRef.current = null;
+      }
+
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
 
       if (audioContextRef.current) {
@@ -130,6 +65,76 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       mediaRecorder.stop();
     });
   }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      setError(null);
+      audioChunksRef.current = [];
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm',
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Silence detection
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.fftSize;
+      const dataArray = new Uint8Array(bufferLength);
+
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      sourceRef.current = source;
+      dataArrayRef.current = dataArray;
+
+      const SILENCE_THRESHOLD = 5;
+      const SILENCE_TIMEOUT = 3000;
+
+      const checkSilence = () => {
+        analyser.getByteTimeDomainData(dataArray);
+        const avg = dataArray.reduce((sum, val) => sum + Math.abs(val - 128), 0) / dataArray.length;
+
+        if (avg < SILENCE_THRESHOLD) {
+          if (!silenceTimeoutRef.current) {
+            silenceTimeoutRef.current = setTimeout(() => {
+              if (mediaRecorder.state === 'recording') {
+                stopRecording();
+              }
+            }, SILENCE_TIMEOUT);
+          }
+        } else {
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
+        }
+
+        rafIdRef.current = requestAnimationFrame(checkSilence);
+      };
+
+      checkSilence(); // Başlat
+
+      mediaRecorder.start();
+      setRecordingState('recording');
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      setError('Mikrofona erişim izni gerekli / Microphone access required');
+      setRecordingState('idle');
+    }
+  }, [stopRecording]);
 
   return {
     recordingState,
