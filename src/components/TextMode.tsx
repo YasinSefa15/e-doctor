@@ -25,6 +25,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [chatHistory, setChatHistory] = useState([])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,8 +54,13 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
     setInputValue('');
     setIsLoading(true);
 
+    chatHistory.push({
+  role: 'user',
+  parts: [{ text: userMessage }],
+});
+
     try {
-      const aiResponseText = await generateAIResponse(userInput, language);
+      const aiResponseText = await generateAIResponse(chatHistory, language);
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
