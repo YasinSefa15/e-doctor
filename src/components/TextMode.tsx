@@ -186,30 +186,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t border-gray-200 bg-white shadow-lg">
-          <div className="px-8 py-6">
-            <div className="flex gap-4 max-w-5xl mx-auto">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={t('typeYourSymptoms', language)}
-                disabled={isLoading}
-                className="flex-1 px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
-              />
-              <button
-                onClick={handleSend}
-                disabled={!inputValue.trim() || isLoading}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3 font-semibold text-lg"
-              >
-                <Send className="w-6 h-6" />
-                {t('send', language)}
-              </button>
-            </div>
-          </div>
-        </div>
+        
       </div>
     </div>
   );
