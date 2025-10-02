@@ -1,9 +1,1 @@
-
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="crimson">
-  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-           2 6.42 3.42 5 5.5 5 
-           c1.74 0 3.41 1.01 4.13 2.44 
-           h1.74C13.09 6.01 14.76 5 16.5 5 
-           18.58 5 20 6.42 20 8.5 
-           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-32 h-32 text-blue-600 animate-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
