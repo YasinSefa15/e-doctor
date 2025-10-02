@@ -71,7 +71,7 @@ export default function WelcomeScreen({ language, onLanguageChange, onStartSessi
         >
           <span className="flex items-center gap-3">
     
-             <Devlet width={48} height={48} />
+            <img src={Devlet} alt="Devlet icon" width={48} height={48} />
             {t('startSession', language)}
             <svg className="w-8 h-8 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
