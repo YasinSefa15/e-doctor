@@ -161,7 +161,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
                       : 'bg-white text-gray-900 rounded-tl-none border border-gray-200'
                   }`}
                 >
-                  <p className="text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-lg leading-relaxed whitespace-pre-wrap">{message.text}</p>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 px-2">
                   {message.timestamp.toLocaleTimeString(language === 'tr' ? 'tr-TR' : 'en-US', {
