@@ -91,7 +91,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col animate-fadeIn">
-      <div className="bg-white shadow-lg border-b border-gray-200">
+      <div className="sticky top-0 bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -120,7 +120,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
         </div>
       </div>
 
-      <div className="flex-1  flex flex-col max-w-7xl mx-auto w-full">
+      <div className="overflow-y-auto flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6">
           {messages.map((message, index) => (
             <div
