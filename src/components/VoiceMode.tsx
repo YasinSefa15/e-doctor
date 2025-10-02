@@ -92,6 +92,12 @@ resetSilenceTimer();
   };
 
   const handleStopRecording = async () => {
+    if (silenceTimerRef.current) {
+  clearTimeout(silenceTimerRef.current);
+  silenceTimerRef.current = null;
+}
+
+    
     setIsProcessing(true);
 
     try {
