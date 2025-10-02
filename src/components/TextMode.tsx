@@ -45,7 +45,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue.trim(),
+      text: inputValue.trim(),
       timestamp: new Date(),
     };
 
@@ -55,9 +55,9 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
     setIsLoading(true);
 
     chatHistory.push({
-  role: 'user',
-  parts: [{ text: userMessage }],
-});
+        role: 'user',
+        parts: [{...userMessage}],
+      });
 
     try {
       const aiResponseText = await generateAIResponse(chatHistory, language);
