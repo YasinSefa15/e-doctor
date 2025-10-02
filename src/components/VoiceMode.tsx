@@ -1,13 +1,98 @@
 import { Mic, ArrowLeft } from 'lucide-react';
 import { Language } from '../types';
 import { t } from '../i18n/translations';
+import { Language, Message } from '../types';
+import { t } from '../i18n/translations';
+import { generateAIResponse } from '../services/geminiService';
+
 
 interface VoiceModeProps {
   language: Language;
   onBack: () => void;
 }
 
+const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+
+
 export default function VoiceMode({ language, onBack }: VoiceModeProps) {
+    const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: language === 'tr'
+        ? 'Merhaba! Ben e-Doktor, yapay zeka destekli tıbbi asistanınızım. Size nasıl yardımcı olabilirim? Lütfen semptomlarınızı detaylı bir şekilde anlatın.'
+        : 'Hello! I am e-Doktor, your AI-powered medical assistant. How can I help you today? Please describe your symptoms in detail.',
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: inputValue.trim(),
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    const userInput = inputValue.trim();
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      const aiResponseText = await generateAIResponse(userInput, language);
+
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: aiResponseText,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: language === 'tr'
+          ? 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
+          : 'Sorry, an error occurred. Please try again.',
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col p-8 animate-fadeIn">
       <button
