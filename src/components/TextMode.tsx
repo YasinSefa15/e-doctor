@@ -56,7 +56,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
 
     chatHistory.push({
         role: 'user',
-        parts: [{...userMessage}],
+        parts: [{text : userMessage.text}],
       });
 
     try {
