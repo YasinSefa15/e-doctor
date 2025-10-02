@@ -69,6 +69,7 @@ function App() {
         <VoiceMode
           language={language}
           onBack={handleBackToModes}
+          onEndSession={handleEndSession}
         />
       )}
 
