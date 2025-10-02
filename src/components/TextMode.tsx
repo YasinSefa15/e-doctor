@@ -189,7 +189,7 @@ export default function TextMode({ language, onBack, onEndSession }: TextModePro
         
       </div>
 
-      <div className="fixed bottom-0 border-t border-gray-200 bg-white shadow-lg">
+      <div className="sticky w-full bottom-0 border-t border-gray-200 bg-white shadow-lg">
           <div className="px-8 py-6">
             <div className="flex gap-4 max-w-5xl mx-auto">
               <input
