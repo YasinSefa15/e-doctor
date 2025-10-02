@@ -26,7 +26,7 @@ export const translations: Record<Language, Record<string, string>> = {
     startNewSession: 'Yeni Oturum Başlat',
     returnHome: 'Ana Sayfa',
     disclaimerTitle: 'Bilgilendirme',
-    disclaimerText: 'e-Doktor bir yapay zeka asistanıdır ve tıbbi teşhis koyamaz. Acil durumlarda 112\'yi arayın. Verilen bilgiler sadece genel bilgilendirme amaçlıdır.',
+    disclaimerText: 'e-Doktor bir özelleştirilmiş yapay zeka asistanıdır ve size yardım etmek için buradadır. Teşhis koyabilir, basit ilaçlarla reçete yazabilir, raporlarınızı yorumlamada yardımcı olabilir. Gerekli bulduğu durumlarda doktora yönlendirme yapabilir.',
     understood: 'Anladım',
     chatPlaceholder: 'Sohbet burada başlayacak...',
   },
