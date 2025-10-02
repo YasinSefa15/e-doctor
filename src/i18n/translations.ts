@@ -55,7 +55,7 @@ export const translations: Record<Language, Record<string, string>> = {
     startNewSession: 'Start New Session',
     returnHome: 'Home',
     disclaimerTitle: 'Information',
-    disclaimerText: 'e-Doktor is an AI assistant and cannot provide medical diagnosis. In emergencies, call 112. The information provided is for general informational purposes only.',
+    disclaimerText: 'e-Doktor is a personalized AI assistant designed to help you. It can provide diagnoses, prescribe basic medications, and assist in interpreting your medical reports. When necessary, it can refer you to a doctor for further evaluation.',
     understood: 'Understood',
     chatPlaceholder: 'Chat will begin here...',
   },
