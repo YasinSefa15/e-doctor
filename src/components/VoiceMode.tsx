@@ -13,6 +13,8 @@ interface VoiceModeProps {
 }
 
 export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeProps) {
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -35,6 +37,20 @@ export default function VoiceMode({ language, onBack, onEndSession }: VoiceModeP
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const resetSilenceTimer = () => {
+  if (silenceTimerRef.current) {
+    clearTimeout(silenceTimerRef.current);
+  }
+
+  // ⏱️ Örn: 3 saniye sessizlik
+  silenceTimerRef.current = setTimeout(() => {
+    if (recordingState === 'recording') {
+      handleStopRecording();
+    }
+  }, 3000); // 3000 ms = 3 saniye
+};
+
+  
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
