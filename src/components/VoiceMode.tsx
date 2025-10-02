@@ -1,8 +1,8 @@
-import { Mic, ArrowLeft } from 'lucide-react';
-import { t } from '../i18n/translations';
+import { Mic, ArrowLeft, Bot, User } from 'lucide-react';
+import { useState } from 'react';
 import { Language, Message } from '../types';
+import { t } from '../i18n/translations';
 import { generateAIResponse } from '../services/geminiService';
-
 
 interface VoiceModeProps {
   language: Language;
@@ -11,86 +11,74 @@ interface VoiceModeProps {
 
 const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
 
-
 export default function VoiceMode({ language, onBack }: VoiceModeProps) {
-    const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: language === 'tr'
-        ? 'Merhaba! Ben e-Doktor, yapay zeka destekli tıbbi asistanınızım. Size nasıl yardımcı olabilirim? Lütfen semptomlarınızı detaylı bir şekilde anlatın.'
-        : 'Hello! I am e-Doktor, your AI-powered medical assistant. How can I help you today? Please describe your symptoms in detail.',
-      timestamp: new Date(),
-    },
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const handleRecord = async () => {
+    setIsRecording(true);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    const audioChunks: Blob[] = [];
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: inputValue.trim(),
-      timestamp: new Date(),
+    mediaRecorder.ondataavailable = (e) => {
+      audioChunks.push(e.data);
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    const userInput = inputValue.trim();
-    setInputValue('');
-    setIsLoading(true);
+    mediaRecorder.onstop = async () => {
+      setIsRecording(false);
+      setLoading(true);
 
-    try {
-      const aiResponseText = await generateAIResponse(userInput, language);
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
 
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: aiResponseText,
-        timestamp: new Date(),
-      };
+      try {
+        const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text/convert', {
+          method: 'POST',
+          headers: {
+            'xi-api-key': apiKey,
+          },
+          body: formData,
+        });
 
-      setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
-      console.error('Error generating AI response:', error);
+        const data = await response.json();
+        const userText = data?.text;
 
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: language === 'tr'
-          ? 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.'
-          : 'Sorry, an error occurred. Please try again.',
-        timestamp: new Date(),
-      };
+        if (!userText) throw new Error('Ses tanıma başarısız');
 
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+        // 1. Kullanıcı mesajını göster
+        const userMessage: Message = {
+          id: Date.now().toString(),
+          role: 'user',
+          content: userText,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, userMessage]);
+
+        // 2. AI cevabını al ve göster
+        const aiResponseText = await generateAIResponse(userText, language);
+
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: aiResponseText,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, aiMessage]);
+      } catch (err) {
+        console.error(err);
+        alert(t('errorSpeechToText', language));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    mediaRecorder.start();
+    setTimeout(() => mediaRecorder.stop(), 5000); // 5 saniye kayıt
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex flex-col p-8 animate-fadeIn">
       <button
@@ -101,57 +89,56 @@ export default function VoiceMode({ language, onBack }: VoiceModeProps) {
         <span className="text-lg">{t('backToModes', language)}</span>
       </button>
 
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="relative mb-12 animate-slideUp">
-          <div className="absolute inset-0 animate-ping">
-            <div className="w-80 h-80 bg-green-500 rounded-full opacity-20"></div>
-          </div>
-          <div className="absolute inset-0 animate-pulse" style={{ animationDuration: '2s' }}>
-            <div className="w-80 h-80 bg-green-400 rounded-full opacity-30"></div>
-          </div>
-          <div className="relative z-10 w-80 h-80 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-2xl">
-            <Mic className="w-40 h-40 text-white animate-pulse" style={{ animationDuration: '1.5s' }} />
-          </div>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-96 h-96 border-4 border-green-400 rounded-full animate-ping opacity-30"></div>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-[26rem] h-[26rem] border-4 border-green-300 rounded-full animate-ping opacity-20" style={{ animationDuration: '2s', animationDelay: '0.5s' }}></div>
+      <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+        <div className="relative animate-slideUp" onClick={handleRecord}>
+          <div className="relative z-10 w-80 h-80 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-2xl cursor-pointer">
+            <Mic className={`w-40 h-40 text-white ${isRecording ? 'animate-bounce' : 'animate-pulse'}`} />
           </div>
         </div>
 
-        <div className="text-center max-w-3xl animate-slideUp" style={{ animationDelay: '200ms' }}>
-          <h2 className="text-5xl font-bold text-gray-900 mb-6">
-            {t('voiceModeComingSoon', language)}
-          </h2>
-          <p className="text-2xl text-gray-600 leading-relaxed mb-8">
-            {t('voiceModeMessage', language)}
+        {loading && (
+          <p className="text-xl text-gray-600">
+            {language === 'tr' ? 'Yanıt alınıyor...' : 'Getting response...'}
           </p>
+        )}
 
-          <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-8 inline-block">
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0">
-                <svg className="w-10 h-10 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
+        <div className="w-full max-w-2xl space-y-6">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+            >
+              <div
+                className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
+                  message.role === 'user'
+                    ? 'bg-blue-600'
+                    : 'bg-green-600'
+                }`}
+              >
+                {message.role === 'user' ? (
+                  <User className="w-6 h-6 text-white" />
+                ) : (
+                  <Bot className="w-6 h-6 text-white" />
+                )}
               </div>
-              <p className="text-amber-900 text-xl font-semibold">
-                {language === 'tr'
-                  ? 'Ses tanıma özelliği geliştirme aşamasındadır'
-                  : 'Voice recognition feature is under development'}
-              </p>
+              <div
+                className={`flex-1 max-w-2xl ${
+                  message.role === 'user' ? 'text-right' : 'text-left'
+                }`}
+              >
+                <div
+                  className={`inline-block px-6 py-4 rounded-2xl shadow-md ${
+                    message.role === 'user'
+                      ? 'bg-blue-600 text-white rounded-tr-none'
+                      : 'bg-white text-gray-900 rounded-tl-none border border-gray-200'
+                  }`}
+                >
+                  <p className="text-lg leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-
-        <button
-          onClick={onBack}
-          className="mt-16 px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xl font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 animate-slideUp"
-          style={{ animationDelay: '400ms' }}
-        >
-          {t('backToModes', language)}
-        </button>
       </div>
     </div>
   );
