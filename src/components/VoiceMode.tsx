@@ -33,14 +33,14 @@ export default function VoiceMode({ language, onBack }: VoiceModeProps) {
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
-
+   
       try {
         const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
           method: 'POST',
           headers: {
             'xi-api-key': apiKey,
           },
-          body: formData,
+          body: {...formData,model_id:"scribe_v"},
         });
 
         const data = await response.json();
